@@ -403,7 +403,9 @@ run it when Lightroom launches it. A `git clone` sets no quarantine.
   the encoder included, matches the manifest.
 - After unzipping, the user removes the quarantine flag once with
   `xattr -dr com.apple.quarantine Genreator.lrplugin`. The README gives the command, and Check
-  Model names it, with the plugin's own path, when the runtime does not start.
+  Model names it, with the plugin's own path, when the runtime does not start. Without it,
+  macOS holds the runtime behind its *Not Opened* dialog until the user answers, so Check
+  Model shows the command only after *Done*; the README warns against *Move to Trash*.
 - `make install` is for development only, and its requirements are in `docs/development.md`.
   It takes the encoder from a release of its own, tagged `encoder-<id>` (ADR-021), not from a
   plugin release: any commit then installs the encoder its manifest names, and the encoder is

@@ -236,8 +236,9 @@ every searchable or browsable field needs a title.
 What the offline suite cannot prove; check by hand after changes in these areas:
 
 - **A release zip (ADR-026)**, downloaded through a browser and installed by the README's
-  *Install*: without the `xattr` step, does *Check Model* run or show the quarantine command
-  with this folder's path; after it, the model is ready. Uninstall a development symlink first:
+  *Install*: without the `xattr` step, macOS shows *“localgenres” Not Opened* and *Check
+  Model* waits; after *Done* it shows the quarantine command with this folder's path; after
+  the command, the model is ready. Uninstall a development symlink first:
   two copies with one plugin id conflict.
 - The plugin loads; *Check Model* reports the model ready; Diagnostics shows the model and
   settings; the fields appear in the Metadata panel.

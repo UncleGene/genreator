@@ -56,6 +56,11 @@ leave your computer, and there is no account, key or service to set up.
    (Type `xattr -dr com.apple.quarantine ` and drag the folder onto the Terminal window to
    fill in its path.)
 
+   If you skip this step, macOS shows *“localgenres” Not Opened* the first time the model
+   runs, and Lightroom waits until you answer it. Click **Done**, not *Move to Trash* (that
+   deletes the model program, and you would need to unzip the release again), then run the
+   command above.
+
 5. **Restart Lightroom Classic** fully (quit and reopen) and check:
 
    - *File ▸ Plug-in Extras ▸ **Check Model*** — the model is complete and runs.
@@ -396,8 +401,9 @@ location is written anywhere outside the catalog. Logs record counts, timings, g
   updating, restart Lightroom fully.
 - **"The model is not installed"** — the plugin folder is incomplete: download and unzip the
   release again; *Check Model* says what is missing.
-- **"The model does not run"** — usually macOS's quarantine flag: run the command *Check
-  Model* shows (Install, step 4), then *Check Model* again.
+- **"The model does not run"**, or **"“localgenres” Not Opened"** from macOS — the
+  quarantine flag: click *Done* in macOS's message, run the command *Check Model* shows
+  (Install, step 4), then *Check Model* again.
 - **New fields or collections do not appear** — restart Lightroom; then run *Set Up Review
   Collections* again.
 - **Photographs in `Errors`** — the Metadata panel's Error field says why; classifying them

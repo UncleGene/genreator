@@ -79,7 +79,7 @@ Log file: `~/.config/genreator/logs/genreator.log`, rotated at 1 MB.
 |---|---|
 | Config unparseable or a bad value | Abort before any work; name the file |
 | Model files missing (plugin folder incomplete, or encoder not downloaded) | Abort before any work; *Check Model* names the file |
-| Runtime blocked by macOS quarantine (a downloaded zip) | The model fails as a whole (below); *Check Model* shows the `xattr` command with the plugin's path (ADR-026) |
+| Runtime blocked by macOS quarantine (a downloaded zip) | macOS shows *“localgenres” Not Opened* and the run waits until it is answered (or the model timeout, 10 minutes by default); then the model fails as a whole (below) and *Check Model* shows the `xattr` command with the plugin's path (ADR-026) |
 | Rendition fails for one photo | Per-photo error; run continues |
 | The model cannot read one photo | Per-photo error; run continues |
 | The model fails as a whole (crash, timeout, wrong taxonomy, unreadable response) | Run stops; renditions deleted; the remaining photographs stay unclassified, not errors |
