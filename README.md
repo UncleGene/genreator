@@ -39,8 +39,10 @@ leave your computer, and there is no account, key or service to set up.
 ## Install
 
 1. Download `Genreator-<version>.zip` from the latest release:
-   <https://github.com/UncleGene/genreator/releases/latest>.
-2. Unzip it (double-click in Finder). It holds the plugin folder, `Genreator.lrplugin`, and
+   <https://github.com/UncleGene/genreator/releases/latest>. The browser saves it to your
+   Downloads folder, or, if it asks where to save, to the folder you pick; remember which.
+2. In Finder, open that folder and double-click the zip. It unzips next to the zip, into a
+   folder named `Genreator-<version>` that holds the plugin folder, `Genreator.lrplugin`, and
    its licence files.
 3. Move `Genreator.lrplugin` to where it will stay — for example
    `~/Library/Application Support/Adobe/Lightroom/Modules/`, where Lightroom loads it by
