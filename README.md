@@ -22,10 +22,21 @@ leave your computer, and there is no account, key or service to set up.
 
 > **The genres and the model are one photographer's opinion.** There is no correct answer to
 > "is this street or documentary?". The definitions are the author's deliberately opinionated
-> view, and the model learned the author's own judgements of the author's own catalog. On
-> another photographer's catalog, or for another person's idea of the genres, expect
-> different and probably worse suggestions. Treat them as a starting point for your review,
-> not as an objective classification. See [About the model](#about-the-model).
+> view, and the model learned only the author's own judgements of the author's own catalog —
+> the genres, the suggested keywords and the suggested ratings alike. On another
+> photographer's catalog, or for another person's idea of the genres, expect different and
+> probably worse suggestions. Treat them as a starting point for your review, not as an
+> objective classification.
+>
+> **Expect mistakes in both directions.** On 200 of the author's photographs kept out of
+> training, more than a quarter of the genres the model suggests are ones the author did not
+> choose, about three in ten of the author's genres are missed, and the primary genre is wrong
+> on one photograph in four. These are best-case figures: the photographs come from the same
+> catalog and the same judge as the training ones. On your catalog, expect more of both.
+>
+> **The workflow is built for that.** The model writes only suggestions: no genre becomes a
+> keyword until you accept it, after reviewing the suggestions genre by genre, and the
+> suggested rating never touches your stars. See [About the model](#about-the-model).
 
 ---
 
@@ -343,6 +354,55 @@ your pre-tags (step 3). On a personal photograph a genre must also reach the mod
 recommended floor (step 2). When "no genre" reaches its cut-off, or no genre does, the suggestion
 is **No genre** — or your pre-tags, if you tagged any.
 
+**How often it is wrong.** On 200 of the author's photographs kept out of training:
+
+| | |
+|---|---|
+| Suggested genres the author did not choose | 36 of 130 (28%) |
+| The author's genres the model missed | 42 of 136 (31%) |
+| Primary genre wrong | 53 of 200 (26.5%) |
+| The author's genres missed on personal photographs | 66% |
+| Suggested keywords that are wrong (562 judged photographs, out of fold) | 24% |
+| The author's keywords missed (same photographs) | 35% |
+| Suggested rating: the author's 3★-and-above photographs in the candidate bucket (default ratio; 32,687 rated photographs, out of fold) | 590 of 1,205 (49%) |
+| Suggested rating: the author's 3★-and-above photographs in the likely-0★ bucket | 57 of 1,205 (5%) |
+| Suggested rating: bucket equals the author's star (photographs from 2025–2026) | 55% |
+
+Read these as the best case: every figure is measured on the author's own catalog against the
+author's own judgements and star ratings, and the genre figures on the same 200 photographs
+that were used to choose between candidate models, which flatters the one chosen. A
+different catalog or a different eye will see more mistakes of both kinds.
+
+**How the workflow catches them.** The suggestions are built to be corrected, not trusted:
+
+- **Nothing final without you.** Classify writes only suggestions, in plugin fields; genre
+  keywords and the Primary Genre are written when you accept.
+- **Extras over misses.** The cut-offs prefer suggesting an extra genre to missing one: an
+  extra shows up in a genre grid and goes in one click, a missing genre goes unnoticed.
+- **Wrong ones stand out.** Each review grid holds one suggested genre, or one suggested
+  primary, so the misfits are visible among the photographs that belong; the genres most often
+  suggested wrongly come first.
+- **Misses are the harder kind.** Add a missing genre in the grids (*Add Genre…*, *Set
+  Primary Genre…*); on personal photographs, expect to set the primary yourself.
+- **The rating only orders your work.** It writes a bucket, never a star: a good photograph
+  it misses sits in a lower bucket, not lost, and the stars stay yours.
+- **Keywords wait for you too.** Suggested keywords are written at once, but held in
+  `1 Keywords to Verify` until you mark them; Suggest Keywords never changes a verified
+  photograph.
+
+What gets through is what a review passes: a grid accepted without a look, or a genre neither
+the model nor you added.
+
+**Why a small model.** A deliberate trade of some accuracy for speed, cost and privacy. The
+genre model is a small network (one hidden layer) on a base-size image encoder (185 MB); it
+runs on the Mac in about 10 ms per photograph, with no network, account or key. The author
+compared it with vision-language models — local ones run through Ollama, and paid cloud
+models. Prompted with written definitions alone, they took seconds per photograph and could
+not hold the author's boundaries between genres. Asked only about the photographs the small
+model was least sure of, a cloud model corrected a few more of them — at a price per
+photograph, and with the photographs leaving the computer. Other image encoders, larger ones
+included, were compared too and not adopted.
+
 **Training and accuracy.** What the model learned from, how well it does on the author's
 catalog (genres, the suggested rating and the suggested keywords), and how it was measured:
 [`docs/model.md`](docs/model.md).
@@ -362,8 +422,9 @@ catalog (genres, the suggested rating and the suggested keywords), and how it wa
   keywords (named faces). When the Personal keyword's tree holds exactly the people you know,
   the two agree; on a personal photograph with nobody in it, or a person keyword under the
   Personal keyword who does not make a photograph personal, expect less certain answers.
-- **Extra genres are rare in this version** (0.18 per photograph, 0.30 on photographs that
-  are not personal), and so are secondary genres: the model mostly answers one genre or none.
+- **Few genres per photograph in this version** — 0.18 extras per photograph on average
+  (0.30 on photographs that are not personal), and few secondary genres: the model mostly
+  answers one genre or none.
   Remove extras in the genre grids; add a missing secondary there too.
 - **Documentary is rare** in the training catalog (9 training examples) and weakly learned:
   the one held-out photograph that has it was not found. It is also often a matter of context the image does not show —

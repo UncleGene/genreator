@@ -29,6 +29,10 @@ On the author's catalog, against the author's judgements:
 | No genre: photographs the author judged No genre that the model also calls No genre | 68 of 77 (88%) | 2 of 3 |
 | No genre: the model's No-genre answers the author agrees with | 68 of 96 (71%) | — |
 
+These are best-case figures for anyone else's catalog: the 200 come from the same catalog and
+judge as the training photographs, and they were also used to choose this model over a
+candidate with a different image encoder, which flatters the one chosen.
+
 The figures are not comparable with earlier versions', which were measured against the earlier
 judgements. For comparison, when the author judged 40 of those photographs a second time,
 blind, the primary matched their own earlier judgement 95% of the time.
