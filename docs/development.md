@@ -260,19 +260,20 @@ What the offline suite cannot prove; check by hand after changes in these areas:
   check matches; a second run changes nothing.
 - Correcting an already-accepted photograph keeps the primary first among the genres and the
   genre fields matching the keywords.
-- The personal floor (ADR-028), after a full restart: the Metadata
-  panel shows *Classified as personal* last; Diagnostics shows the floor and `personalFloor`;
-  Classify's confirmation names the floor; on personal photographs a genre under the floor is
-  not suggested and the ranking ends `floor=0.5`. *Set Up Review Collections* rewrites `Personal Candidates` to its
-  staging rule; after a classification on this version it shows the personal photographs
-  awaiting review that still have a genre, and no others ("contains" with several words
+- The personal floor (ADR-028), after a full restart: the Metadata panel shows *Classified as
+  personal* after *Error*; Diagnostics shows the floor and `personalFloor`; Classify's
+  confirmation names the floor; on personal photographs a genre under the floor is not
+  suggested and the ranking ends `floor=0.5`. *Set Up Review Collections* rewrites
+  `Personal Candidates` to its staging rule; after a classification on this version it shows
+  the personal photographs awaiting review that still have a genre, and no others ("contains" with several words
   matching any of them); Accept, or removing the last genre, takes a photograph out. With
   `"personalFloor": "off"`, *Re-derive Personal Suggestions* restores the cut-off genres
   without rendering, and back again; Accept on a personal photograph writes
   `decision_personal = yes` in the CSV report.
-- The suggested rating (ADR-029), after a full restart: the Library
-  menu ends with *Suggest Ratings*; the Metadata panel shows *Suggested rating* last; *Check
-  Model* names `2026.11.06-6466afd6-4bdd6c` and says "Suggested rating: yes, bucket ratio 2.0";
+- The suggested rating (ADR-029), after a full restart: the Library menu has *Suggest
+  Ratings* after *Correct Genres…*; the Metadata panel shows *Suggested rating* just before
+  *Keyword review*; *Check Model* names `2026.11.06-6466afd6-4bdd6c` and says "Suggested
+  rating: yes, bucket ratio 2.0";
   Diagnostics shows the rating head and `ratingRatio`; Classify leaves the field empty; Suggest
   Ratings fills it with `0`–`3` on classified and unclassified photographs alike, leaves the
   review state and genres as they were, and the CSV report carries `rating_bucket`,
