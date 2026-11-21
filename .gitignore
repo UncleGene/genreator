@@ -1,0 +1,25 @@
+# Never commit credentials (R8.1 / ADR-008)
+config.json
+*.key
+*.pem
+secrets/
+
+# Run artefacts
+runs/
+logs/
+*.log
+
+# Reports
+reports/
+*.csv
+*.html
+
+# OS
+.DS_Store
+
+# The encoder is a release asset, fetched by `make install` (too large for git)
+Genreator.lrplugin/model/encoders/
+Genreator.lrplugin/model.new/
+dist/
+# Per-photo label files are private; never commit them
+*labels*.json

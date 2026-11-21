@@ -1,0 +1,1 @@
+-- A separator line in the plugin menus (Info.lua): choosing it does nothing.

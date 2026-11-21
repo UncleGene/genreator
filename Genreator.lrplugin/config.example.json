@@ -1,0 +1,13 @@
+{
+  "_comment": "Optional. Copy to ~/.config/genreator/config.json to change a default.",
+
+  "renditionLongEdge": 1024,
+  "jpegQuality": 0.8,
+  "chunkSize": 50,
+  "modelTimeoutSeconds": 600,
+  "personalKeyword": "#PERSONAL",
+  "personalFloor": "recommended",
+  "ratingRatio": "recommended",
+  "keywordRule": "balanced",
+  "logLevel": "info"
+}

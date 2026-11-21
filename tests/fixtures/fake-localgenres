@@ -1,0 +1,126 @@
+#!/usr/bin/env luajit
+--[[
+Stand-in for the model runtime in the offline tests: `fake-localgenres infer REQUEST RESPONSE
+MODEL`, answering in the real runtime's response format.
+
+  - a `fail` file beside the request, or /tmp/genreator-fake-fail: exit 3 with a message on
+    stderr, no response
+  - a `plan.json` beside the request, or /tmp/genreator-fake-plan.json:
+    { "<image file name>": [["Genre", true], …] } sets that photograph's ranking (true =
+    reaches the cut-off, or a number: the applicability, against a cut-off of 0.5 unless a
+    third number gives it);
+    `"<image file name>:no_genre": true` makes its no-genre class fire (a number: its probability);
+    `"taxonomy_version"` overrides the version;
+    `"<image file name>:rating"` replaces that photograph's rating answer (`false` drops it);
+    `"rating": false` answers no rating at all, as a model without a rating head
+  - otherwise every answer carries a rating: score 0.1 × the image's number, bucket
+    {"1.5": n mod 4, "2.0": (n + 1) mod 4}, default ratio 1.5
+  - with a keyword taxonomy in the bundle (model/keyword-taxonomy.json), every answer carries
+    keywords (ADR-030): for image n, keyword (n mod K)+1 scores 3 with both members 3 (agreed),
+    keyword (n+1 mod K)+1 scores 2.5 with the zero-shot member at 2 (not agreed), the rest 0;
+    cut-offs balanced 2.4 / recall_first 1.0, member cut-offs 2.2 / 0.5, cap 3, implied
+    parents from the taxonomy's general keywords;
+    `"<image file name>:keywords"` = [[name, score, zero_shot, probe], …] replaces the ranking
+    (`false` drops the keywords, a string answers it malformed); `"agreement_only"` lists
+    agreement-only keywords; `"keywords": false` answers none, as a model without the head
+  - every answer carries a no-genre class (probability 0.9 when planned, else 0.1; cut-off 0.5)
+  - otherwise the taxonomy's order, the first genre reaching its cut-off; with known_person
+    the second genre comes first, so tests can see the flag arrive
+  - a missing image gets the runtime's per-item error
+Every request is appended to /tmp/genreator-fake-requests.jsonl for the tests to inspect.
+]]
+
+local fixtures = arg[0]:match('^(.*)/[^/]*$') or '.'
+local plugin = fixtures .. '/../../Genreator.lrplugin'
+package.path = plugin .. '/?.lua;' .. package.path
+local Json = require 'GrJson'
+
+local function read(path)
+  local f = io.open(path, 'rb')
+  if not f then return nil end
+  local s = f:read('*a')
+  f:close()
+  return s
+end
+
+local reqPath, respPath = arg[2], arg[3]
+local dir = reqPath:match('^(.*)/[^/]*$')
+local reqText = read(reqPath)
+local log = io.open('/tmp/genreator-fake-requests.jsonl', 'ab')
+log:write((reqText:gsub('\n', ' ')), '\n')
+log:close()
+
+if read(dir .. '/fail') or read('/tmp/genreator-fake-fail') then
+  io.stderr:write('model exploded\n')
+  os.exit(3)
+end
+
+local req = Json.decode(reqText)
+local taxonomy = Json.decode(read(plugin .. '/model/taxonomy.json'))
+local kwText = read(plugin .. '/model/keyword-taxonomy.json')
+local kwTaxonomy = kwText and Json.decode(kwText)
+local plan = Json.decode(read(dir .. '/plan.json') or read('/tmp/genreator-fake-plan.json') or '{}')
+local cancelled = req.cancel_file and read(req.cancel_file) ~= nil
+
+local items = {}
+for _, it in ipairs(req.items) do
+  local out = { request_id = it.request_id, photo_id = it.photo_id, elapsed_ms = 1 }
+  local name = it.image_path:match('([^/]*)$')
+  if cancelled then
+    out.error = 'Canceled'
+  elseif not read(it.image_path) then
+    out.error = 'Missing or unreadable image preview'
+  else
+    local ranked = {}
+    local planned = plan[name]
+    if planned then
+      for _, p in ipairs(planned) do ranked[#ranked + 1] = { p[1], p[2], p[3] } end
+    else
+      for i, g in ipairs(taxonomy.genres) do ranked[i] = { g, i == 1 } end
+      if it.known_person then ranked[1][1], ranked[2][1] = ranked[2][1], ranked[1][1] end
+    end
+    local genres = {}
+    for i, r in ipairs(ranked) do
+      local app = type(r[2]) == 'number' and r[2] or (r[2] and 0.9 or 0.1)
+      genres[i] = { genre = r[1], primary_probability = 1 / (i + 1), applicability = app,
+                    cutoff = type(r[3]) == 'number' and r[3] or 0.5 }
+    end
+    out.ranked = { genres = Json.array(genres),
+                   no_genre = { probability = type(plan[name .. ':no_genre']) == 'number' and plan[name .. ':no_genre']
+                                              or (plan[name .. ':no_genre'] and 0.9 or 0.1), cutoff = 0.5 } }
+    local n = tonumber(name:match('(%d+)')) or 0
+    local rating = plan[name .. ':rating']
+    if rating == nil then
+      rating = { score = 0.1 * n, bucket = { ['1.5'] = n % 4, ['2.0'] = (n + 1) % 4 }, default_ratio = '1.5' }
+    end
+    if rating and plan.rating ~= false then out.ranked.rating = rating end
+    local kwPlan = plan[name .. ':keywords']
+    if kwTaxonomy and plan.keywords ~= false and kwPlan ~= false then
+      local list, K = {}, #kwTaxonomy.keywords
+      if type(kwPlan) == 'table' then
+        for _, r in ipairs(kwPlan) do list[#list + 1] = { keyword = r[1], score = r[2], zero_shot = r[3], probe = r[4] } end
+      else
+        local first, second = (n % K) + 1, ((n + 1) % K) + 1
+        list[1] = { keyword = kwTaxonomy.keywords[first].name, score = 3, zero_shot = 3, probe = 3 }
+        list[2] = { keyword = kwTaxonomy.keywords[second].name, score = 2.5, zero_shot = 2, probe = 3 }
+        for i, k in ipairs(kwTaxonomy.keywords) do
+          if i ~= first and i ~= second then list[#list + 1] = { keyword = k.name, score = 0, zero_shot = 0, probe = 0 } end
+        end
+      end
+      local nameOf, implied = {}, {}
+      for _, k in ipairs(kwTaxonomy.keywords) do nameOf[k.id] = k.name end
+      for _, k in ipairs(kwTaxonomy.keywords) do if k.fallback then implied[k.name] = nameOf[k.fallback] end end
+      out.ranked.keywords = type(kwPlan) == 'string' and kwPlan or {
+        cap = 3, cutoffs = { balanced = 2.4, recall_first = 1.0 },
+        member_cutoffs = { balanced = { zero_shot = 2.2, probe = 2.2 }, recall_first = { zero_shot = 0.5, probe = 0.5 } },
+        agreement_only = Json.array(plan.agreement_only or {}), implied = implied, ranked = Json.array(list) }
+    end
+  end
+  items[#items + 1] = out
+end
+
+local f = io.open(respPath, 'wb')
+f:write(Json.encode { schema_version = 1, task = 'genres', model_id = 'fake-model',
+                      taxonomy_version = plan.taxonomy_version or taxonomy.version,
+                      encoder = 'fake', items = Json.array(items) })
+f:close()
